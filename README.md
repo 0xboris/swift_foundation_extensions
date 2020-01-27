@@ -1,3 +1,5 @@
 # SwiftFoundationExtensions
 
-A description of this package.
+A collection of useful extensions of the Swift Foundation framework.
+
+## Examples
