@@ -202,7 +202,7 @@ public extension Date {
     var lastSevenDays: [Date] {
         var week = [Date]()
         for i in -6...0 {
-            week.append(self.adding(days: i))
+            week.append(self.adding(days: i).startOfDay)
         }
         return week
     }
