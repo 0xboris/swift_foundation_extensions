@@ -34,12 +34,13 @@ public extension Minutes {
 public extension Date {
     
     /// Returns the day in the month (e.g. 13 for 13th February)
-    var day: Int {
+    var dayInMonth: Int {
         return Calendar.current.component(.day, from: self)
     }
 
-    var minutes: Minutes {
-        return Calendar.current.component(.hour, from: self) * 60 + Calendar.current.component(.minute, from: self)
+    var minutesInDay: Minutes {
+        return Calendar.current.component(.hour, from: self) * 60 +
+            Calendar.current.component(.minute, from: self)
     }
     
     var dayOfWeek: Int {
