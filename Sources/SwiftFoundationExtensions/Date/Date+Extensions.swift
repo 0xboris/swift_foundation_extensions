@@ -85,6 +85,10 @@ public extension Date {
         return Calendar.current.startOfDay(for: self)
     }
     
+    var endOfDay: Date {
+        self.adding(days: 1).startOfDay.addingTimeInterval(-1)
+    }
+    
     var noon: Date {
         return startOfDay.addingTimeInterval(60*60*12)
     }
@@ -194,12 +198,18 @@ public extension Date {
         return dates
     }
     
+    /// Returns the last seven days, including the date itself.
     var lastSevenDays: [Date] {
         var week = [Date]()
         for i in -6...0 {
             week.append(self.adding(days: i))
         }
         return week
+    }
+    
+    /// Returns the range of the last seven days, including the date itself.
+    var lastSevenDaysRange: Range<Date> {
+        self.adding(days: -6).startOfDay..<self.adding(days: 1).startOfDay
     }
     
     mutating func moveTo(date: Date, using cal: Calendar = Calendar.current) {
