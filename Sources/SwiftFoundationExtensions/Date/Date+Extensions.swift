@@ -194,6 +194,14 @@ public extension Date {
         return dates
     }
     
+    var lastSevenDays: [Date] {
+        var week = [Date]()
+        for i in -6...0 {
+            week.append(self.adding(days: i))
+        }
+        return week
+    }
+    
     mutating func moveTo(date: Date, using cal: Calendar = Calendar.current) {
         self = movingTo(date: date, using: cal)
     }
