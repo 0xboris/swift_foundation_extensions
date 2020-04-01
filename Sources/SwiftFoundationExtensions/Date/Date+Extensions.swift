@@ -170,7 +170,11 @@ public extension Date {
         return Calendar.current.date(byAdding: .month, value: months, to: self)!
     }
     
-    var week: (start: Date, end: Date) {
+    var week: Int {
+        return Calendar.current.component(.weekOfYear, from: self)
+    }
+    
+    var weekSpan: (start: Date, end: Date) {
         let start = adding(days: -dayOfWeek)
         let end = start.adding(days: 7)
         return (start.startOfDay, end.startOfDay)
