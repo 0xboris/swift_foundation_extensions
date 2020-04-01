@@ -284,3 +284,16 @@ public extension Date {
     
 }
 
+#if os(iOS)
+
+extension Date: Strideable {
+    func advanced(by n: Int) -> Date {
+        self.adding(days: n)
+    }
+
+    func distance(to other: Date) -> Int {
+        Int(self.days(between: other))
+    }
+}
+
+#endif
