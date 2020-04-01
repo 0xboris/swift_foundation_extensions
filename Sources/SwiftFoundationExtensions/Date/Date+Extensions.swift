@@ -75,7 +75,7 @@ public extension Date {
     }
     
     func inSameWeek(as date: Date) -> Bool {
-        return self.timeIntervalSince(date.week.start) >= 0 && self.timeIntervalSince(date.week.end) < 0
+        return self.timeIntervalSince(date.weekSpan.start) >= 0 && self.timeIntervalSince(date.weekSpan.end) < 0
     }
     
     func isLater(than date: Date) -> Bool {
@@ -195,7 +195,7 @@ public extension Date {
     }
     
     var weekDates: [Date] {
-        let start = week.start
+        let start = weekSpan.start
         var dates = [start]
         while dates.count < 7 {
             dates.append(start.adding(days: dates.count))
