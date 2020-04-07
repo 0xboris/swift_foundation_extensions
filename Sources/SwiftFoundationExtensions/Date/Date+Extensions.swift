@@ -74,8 +74,12 @@ public extension Date {
         return Calendar.current.isDate(self, inSameDayAs: date)
     }
     
-    func inSameWeek(as date: Date) -> Bool {
-        return self.timeIntervalSince(date.weekSpan.start) >= 0 && self.timeIntervalSince(date.weekSpan.end) < 0
+    func sameWeek(as date: Date) -> Bool {
+        return weekRange.contains(date)
+    }
+    
+    func sameMonth(as date: Date) -> Bool {
+        monthRange.contains(date)
     }
     
     func isLater(than date: Date) -> Bool {
@@ -174,15 +178,29 @@ public extension Date {
         return Calendar.current.component(.weekOfYear, from: self)
     }
     
+    var range: ClosedRange<Date> {
+        startOfDay...endOfDay
+    }
+    
     var weekSpan: (start: Date, end: Date) {
         let start = adding(days: -dayOfWeek)
         let end = start.adding(days: 7)
         return (start.startOfDay, end.startOfDay)
     }
     
+    var weekRange: ClosedRange<Date> {
+        let week = Calendar.current.dateInterval(of: .weekOfYear, for: self)!
+        return week.start...week.end.addingTimeInterval(-1)
+    }
+    
     var monthSpan: (start: Date, end: Date) {
         let month = Calendar.current.dateInterval(of: .month, for: self)!
         return (month.start, month.end.addingTimeInterval(-1))
+    }
+    
+    var monthRange: ClosedRange<Date> {
+        let month = Calendar.current.dateInterval(of: .month, for: self)!
+        return month.start...month.end.addingTimeInterval(-1)
     }
 
     var month: Int {
