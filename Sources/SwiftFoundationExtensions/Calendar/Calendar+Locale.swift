@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension Calendar {
+public extension Calendar {
     static var localized: Calendar {
         var cal = Calendar(identifier: .gregorian)
         cal.locale = Locale.autoupdatingCurrent
