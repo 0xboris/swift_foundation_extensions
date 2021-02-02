@@ -303,5 +303,16 @@ public extension Date {
             return nil
         }
     }
-    
+}
+
+public extension ClosedRange where Bound == Date {
+    var dates: [Date] {
+        var dates = [lowerBound]
+        var date = lowerBound.adding(days: 1)
+        while date < upperBound {
+            dates.append(date)
+            date = date.adding(days: 1)
+        }
+        return dates
+    }
 }
