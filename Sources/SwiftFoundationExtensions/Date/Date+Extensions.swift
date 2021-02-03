@@ -34,222 +34,164 @@ public extension Minutes {
 public extension Date {
     
     /// Returns the day in the month (e.g. 13 for 13th February)
-    var dayInMonth: Int {
-        return Calendar.current.component(.day, from: self)
+    func dayInMonth(_ calendar: Calendar = .current) -> Int {
+        return calendar.component(.day, from: self)
     }
 
-    var minutesInDay: Minutes {
-        return Calendar.current.component(.hour, from: self) * 60 +
-            Calendar.current.component(.minute, from: self)
+    func minutesInDay(_ calendar: Calendar = .current) -> Minutes {
+        return calendar.component(.hour, from: self) * 60 +
+        calendar.component(.minute, from: self)
     }
     
-    var dayOfWeek: Int {
-        let days = [0, 6, 0, 1, 2, 3, 4, 5]
-        return days[Calendar.current.component(.weekday, from: self)]
+    func dayOfWeek(_ calendar: Calendar = .current) -> Int {
+        calendar.component(.weekday, from: self)
     }
     
-    var nextDay: Date {
-        return adding(days: 1)
+    /// Returns the index of the day, adjusted to the first day of week. so
+    /// - Example: If first day of week is 2 (Monday), this would return 0.
+    func adjustedWeekdayIndex(_ calendar: Calendar = .current) -> Int {
+        (calendar.component(.weekday, from: self) + (7 - calendar.firstWeekday)) % 7
     }
     
-    var previousDay: Date {
-        return adding(days: -1)
+    func nextDay(_ calendar: Calendar = .current) -> Date {
+        return adding(days: 1, calendar: calendar)
     }
     
-    var nextWeek: Date {
-        return adding(days: 7)
+    func previousDay(_ calendar: Calendar = .current) -> Date {
+        return adding(days: -1, calendar: calendar)
     }
     
-    var previousWeek: Date {
-        return adding(days: -7)
+    func nextWeek(_ calendar: Calendar = .current) -> Date {
+        return adding(days: 7, calendar: calendar)
+    }
+    
+    func previousWeek(_ calendar: Calendar = .current) -> Date {
+        return adding(days: -7, calendar: calendar)
     }
 
-    var previousMonth: (start: Date, end: Date) {
-        let start = monthSpan.start
-        let midPreviousMonth = start.adding(days: -15)
-        return midPreviousMonth.monthSpan
+    func previousMonth(_ calendar: Calendar = .current) -> ClosedRange<Date> {
+        let start = monthRange(calendar).lowerBound
+        let midPreviousMonth = start.adding(days: -15, calendar: calendar)
+        return midPreviousMonth.monthRange(calendar)
     }
     
-    func sameDay(as date: Date) -> Bool {
-        return Calendar.current.isDate(self, inSameDayAs: date)
+    func sameDay(as date: Date, calendar: Calendar = .current) -> Bool {
+        return calendar.isDate(self, inSameDayAs: date)
     }
     
-    func sameWeek(as date: Date) -> Bool {
-        return weekRange.contains(date)
+    func sameWeek(as date: Date, calendar: Calendar = .current) -> Bool {
+        return weekRange(calendar).contains(date)
     }
     
-    func sameMonth(as date: Date) -> Bool {
-        monthRange.contains(date)
+    func sameMonth(as date: Date, calendar: Calendar = .current) -> Bool {
+        monthRange(calendar).contains(date)
     }
     
     func isLater(than date: Date) -> Bool {
         return self.timeIntervalSince(date) > 0
     }
     
-    var startOfDay: Date {
-        return Calendar.current.startOfDay(for: self)
+    func startOfDay(_ calendar: Calendar = .current) -> Date {
+        return calendar.startOfDay(for: self)
     }
     
-    var endOfDay: Date {
-        self.adding(days: 1).startOfDay.addingTimeInterval(-1)
+    func endOfDay(_ calendar: Calendar = .current) -> Date {
+        self.adding(days: 1, calendar: calendar).startOfDay(calendar).addingTimeInterval(-1)
     }
     
-    var noon: Date {
-        return startOfDay.addingTimeInterval(60*60*12)
-    }
-    
-    var midNightNextDay: Date {
-        return startOfDay.addingTimeInterval(60*60*24)
-    }
-    
-    var formattedString: String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        return formatter.string(from: self)
+    func noon(_ calendar: Calendar = .current) -> Date {
+        return startOfDay(calendar).addingTimeInterval(60*60*12)
     }
     
     func days(between date: Date) -> Double {
         return date.timeIntervalSince(self) / (60*60*24)
     }
     
-    private var shortAbbreviations: [String] {
-        return [
-            "Mo",
-            "Tu",
-            "We",
-            "Th",
-            "Fr",
-            "Sa",
-            "Su"
-        ]
+    func shortMonth(_ calendar: Calendar = .current) -> String {
+        let month = calendar.component(.month, from: self)
+        return calendar.shortMonthSymbols[month-1]
     }
     
-    private var longAbbreviations: [String] {
-        return [
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu",
-            "Fri",
-            "Sat",
-            "Sun"
-        ]
+    func year(_ calendar: Calendar = .current) -> Int {
+        return calendar.component(.year, from: self)
     }
     
-    var shortAbbreviation: String {
-        return longAbbreviations[dayOfWeek]
-    }
-
-    var firstCharacterAbbreviation: String {
-        let abrv = shortAbbreviations[dayOfWeek]
-        return String(abrv[abrv.startIndex])
-    }
-
-    var shortMonth: String {
-        let month = Calendar.current.component(.month, from: self)
-        return Calendar.current.shortMonthSymbols[month-1]
+    func adding(days: Int, calendar: Calendar = .current) -> Date {
+        return calendar.date(byAdding: .day, value: days, to: self)!
     }
     
-    var year: Int {
-        return Calendar.current.component(.year, from: self)
-    }
-    
-    func adding(days: Int) -> Date {
-        return Calendar.current.date(byAdding: .day, value: days, to: self)!
-    }
-    
-    func adding(days: Int, hours: Double) -> Date {
-        return adding(days: days).addingTimeInterval(hours * 60.0 * 60.0)
+    func adding(days: Int, hours: Double, calendar: Calendar = .current) -> Date {
+        return adding(days: days, calendar: calendar).addingTimeInterval(hours * 60.0 * 60.0)
     }
     
     func adding(hours: Double) -> Date {
         return addingTimeInterval(hours * 60 * 60)
     }
     
-    func adding(weeks: Int) -> Date {
-        return Calendar.current.date(byAdding: .weekOfYear, value: weeks, to: self)!
+    func adding(weeks: Int, calendar: Calendar = .current) -> Date {
+        return calendar.date(byAdding: .weekOfYear, value: weeks, to: self)!
     }
     
-    func adding(months: Int) -> Date {
-        return Calendar.current.date(byAdding: .month, value: months, to: self)!
+    func adding(months: Int, calendar: Calendar = .current) -> Date {
+        return calendar.date(byAdding: .month, value: months, to: self)!
     }
     
-    var week: Int {
-        return Calendar.current.component(.weekOfYear, from: self)
+    func week(_ calendar: Calendar = .current) -> Int {
+        return calendar.component(.weekOfYear, from: self)
     }
     
-    var range: ClosedRange<Date> {
-        startOfDay...endOfDay
+    func range(_ calendar: Calendar = .current) -> ClosedRange<Date> {
+        startOfDay(calendar)...endOfDay(calendar)
     }
     
-    var weekSpan: (start: Date, end: Date) {
-        let start = adding(days: -dayOfWeek)
-        let end = start.adding(days: 7)
-        return (start.startOfDay, end.startOfDay)
-    }
-    
-    var weekRange: ClosedRange<Date> {
-        let week = Calendar.current.dateInterval(of: .weekOfYear, for: self)!
+    func weekRange(_ calendar: Calendar = .current) -> ClosedRange<Date> {
+        let week = calendar.dateInterval(of: .weekOfYear, for: self)!
         return week.start...week.end.addingTimeInterval(-1)
     }
     
-    var monthSpan: (start: Date, end: Date) {
-        let month = Calendar.current.dateInterval(of: .month, for: self)!
-        return (month.start, month.end.addingTimeInterval(-1))
-    }
-    
-    var monthRange: ClosedRange<Date> {
-        let month = Calendar.current.dateInterval(of: .month, for: self)!
+    func monthRange(_ calendar: Calendar = .current) -> ClosedRange<Date> {
+        let month = calendar.dateInterval(of: .month, for: self)!
         return month.start...month.end.addingTimeInterval(-1)
     }
 
-    var month: Int {
-        return Calendar.current.component(.month, from: self)
+    func month(_ calendar: Calendar = .current) -> Int {
+        return calendar.component(.month, from: self)
     }
 
-    var yearSpan: (start: Date, end: Date) {
-        let year = Calendar.current.dateInterval(of: .year, for: self)!
-        return (year.start, year.end.addingTimeInterval(-1))
-    }
-    
-    var weekDates: [Date] {
-        let start = weekSpan.start
-        var dates = [start]
-        while dates.count < 7 {
-            dates.append(start.adding(days: dates.count))
-        }
-        return dates
+    func yearRange(_ calendar: Calendar = .current) -> ClosedRange<Date> {
+        let year = calendar.dateInterval(of: .year, for: self)!
+        return year.start...year.end.addingTimeInterval(-1)
     }
     
     /// Returns the last seven days, including the date itself.
-    var lastSevenDays: [Date] {
+    func lastSevenDays(_ calendar: Calendar = .current) -> [Date] {
         var week = [Date]()
         for i in -6...0 {
-            week.append(self.adding(days: i).startOfDay)
+            week.append(self.adding(days: i, calendar: calendar).startOfDay(calendar))
         }
         return week
     }
     
     /// Returns the range of the last seven days, including the date itself.
-    var lastSevenDaysRange: Range<Date> {
-        self.adding(days: -6).startOfDay..<self.adding(days: 1).startOfDay
+    func lastSevenDaysRange(_ calendar: Calendar = .current) -> Range<Date> {
+        lastSevenDays(calendar).range!
     }
     
-    mutating func moveTo(date: Date, using cal: Calendar = Calendar.current) {
-        self = movingTo(date: date, using: cal)
+    mutating func moveTo(date: Date, calendar: Calendar = .current) {
+        self = movingTo(date: date, calendar: calendar)
     }
     
-    func movingTo(date: Date, using cal: Calendar = Calendar.current) -> Date {
-        var newDate = cal.date(bySetting: .hour, value: cal.component(.hour, from: self), of: date)!
-        newDate = cal.date(bySetting: .minute, value: cal.component(.minute, from: self), of: newDate)!
-        newDate = cal.date(bySetting: .second, value: cal.component(.second, from: self), of: newDate)!
+    func movingTo(date: Date, calendar: Calendar = .current) -> Date {
+        var newDate = calendar.date(bySetting: .hour, value: calendar.component(.hour, from: self), of: date)!
+        newDate = calendar.date(bySetting: .minute, value: calendar.component(.minute, from: self), of: newDate)!
+        newDate = calendar.date(bySetting: .second, value: calendar.component(.second, from: self), of: newDate)!
         return newDate
     }
     
-    static func dateComponentsFrom(_ string: String, cal: Calendar) -> DateComponents {
-        var year = cal.component(.year, from: Date())
-        var month = cal.component(.month, from: Date())
-        var day = cal.component(.day, from: Date())
+    static func dateComponentsFrom(_ string: String, calendar: Calendar = .current) -> DateComponents {
+        var year = calendar.component(.year, from: Date())
+        var month = calendar.component(.month, from: Date())
+        var day = calendar.component(.day, from: Date())
         
         let digits = string.matching(regularExpression: "[:punct:]*?[0-9]+[:punct:]*?")
         let letters = string.matching(regularExpression: "[:alpha:]+")
@@ -268,9 +210,9 @@ public extension Date {
         }
         
         for l in letters {
-            for monthSymbol in cal.monthSymbols {
+            for monthSymbol in calendar.monthSymbols {
                 if monthSymbol.lowercased().contains(l.lowercased()) {
-                    month = cal.monthSymbols.firstIndex(of: monthSymbol)! + 1
+                    month = calendar.monthSymbols.firstIndex(of: monthSymbol)! + 1
                     continue
                 }
             }
@@ -294,9 +236,9 @@ public extension Date {
                               yearForWeekOfYear: nil)
     }
     
-    init?(with string: String, using cal: Calendar = Calendar.current) {
-        if let date = cal.nextDate(after: Date.distantPast,
-                                   matching: Date.dateComponentsFrom(string, cal: cal),
+    init?(with string: String, calendar: Calendar = .current) {
+        if let date = calendar.nextDate(after: Date.distantPast,
+                                   matching: Date.dateComponentsFrom(string, calendar: calendar),
                                    matchingPolicy: .nextTime) {
             self = date
         } else {
@@ -306,13 +248,21 @@ public extension Date {
 }
 
 public extension ClosedRange where Bound == Date {
-    var dates: [Date] {
+    func dates(_ calendar: Calendar = .current) -> [Date] {
         var dates = [lowerBound]
-        var date = lowerBound.adding(days: 1)
+        var date = lowerBound.adding(days: 1, calendar: calendar)
         while date < upperBound {
             dates.append(date)
-            date = date.adding(days: 1)
+            date = date.adding(days: 1, calendar: calendar)
         }
         return dates
+    }
+}
+
+public extension RandomAccessCollection where Element == Date {
+    var range: Range<Date>? {
+        guard count > 1 else { return  nil}
+        let dates = sorted(by: <)
+        return dates[0]..<dates[count - 1]
     }
 }

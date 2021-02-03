@@ -11,63 +11,99 @@ import SwiftFoundationExtensions
 
 class DateExtensionTest: XCTestCase {
     
+    private var calendar: Calendar!
+    
+    override func setUp() {
+        super.setUp()
+        calendar = Calendar(identifier: .gregorian)
+    }
+    
+    override func tearDown() {
+        calendar = nil
+        super.tearDown()
+    }
+    
     func test_day_shouldReturnOne() {
         let date = Date(timeIntervalSinceReferenceDate: 0)
-        XCTAssertEqual(date.dayInMonth, 1)
+        XCTAssertEqual(date.dayInMonth(calendar), 1)
     }
     
     func test_minuesInDay_shouldBe66() {
         let offset = Calendar.current.timeZone.secondsFromGMT() / 60
         let date = Date(timeIntervalSinceReferenceDate: 60 * 60 + 6*60)
-        XCTAssertEqual(date.minutesInDay - offset, 66)
+        XCTAssertEqual(date.minutesInDay(calendar) - offset, 66)
     }
     
-    func test_dayOfWeek_shouldBeZero() {
-        let date = Date(timeIntervalSinceReferenceDate: 0)
-        XCTAssertEqual(date.dayOfWeek, 0)
+    func test_adjustedWeekdayIndex_shouldBeOne() {
+        let date = Date(timeIntervalSinceReferenceDate: 0) // 01.01.2001, Monday
+        XCTAssertEqual(date.adjustedWeekdayIndex(calendar), 1)
     }
     
-    func test_dayOfWeek_shouldBeOne() {
-        let date = Date(timeIntervalSinceReferenceDate: 60*60*25)
-        XCTAssertEqual(date.dayOfWeek, 1)
+    func test_adjustedWeekdayIndex_shouldBeZeroWithFirstWeekdayBeingTwo() {
+        calendar.firstWeekday = 2
+        let date = Date(timeIntervalSinceReferenceDate: 0) // 01.01.2001, Monday
+        XCTAssertEqual(date.adjustedWeekdayIndex(calendar), 0)
+    }
+    
+    func test_dayOfWeek_shouldBeTwo() {
+        let date = Date(timeIntervalSinceReferenceDate: 0) // 01.01.2001, Monday
+        XCTAssertEqual(date.dayOfWeek(calendar), 2)
+    }
+    
+    func test_adjustedWeekdayIndex_shouldBeThree() {
+        let date = Date(timeIntervalSinceReferenceDate: 60*60*25) // 02.01.2001, Tuesday
+        XCTAssertEqual(date.adjustedWeekdayIndex(calendar), 2)
+    }
+    
+    func test_adjustedWeekdayIndex_shouldBeOneWithFirstWeekdayBeingTwo() {
+        calendar.firstWeekday = 2
+        let date = Date(timeIntervalSinceReferenceDate: 60*60*25) // 02.01.2001, Tuesday
+        XCTAssertEqual(date.adjustedWeekdayIndex(calendar), 1)
+    }
+    
+    func test_dayOfWeek_shouldBeThree() {
+        let date = Date(timeIntervalSinceReferenceDate: 60*60*25) // 02.01.2001, Tuesday
+        XCTAssertEqual(date.dayOfWeek(calendar), 3)
     }
     
     func test_nextDay_shoulBe20010102() {
-        let date = Date(timeIntervalSinceReferenceDate: 0).nextDay
+        let date = Date(timeIntervalSinceReferenceDate: 0).nextDay(calendar)
         XCTAssertEqual(date, Date(timeIntervalSinceReferenceDate: 60*60*24))
     }
     
     func test_nextDay_shoulBe20001231() {
-        let date = Date(timeIntervalSinceReferenceDate: 0).previousDay
+        let date = Date(timeIntervalSinceReferenceDate: 0).previousDay(calendar)
         XCTAssertEqual(date, Date(timeIntervalSinceReferenceDate: -60*60*24))
     }
     
     func test_nextWeek_shouldBe20010108() {
-        let date = Date(timeIntervalSinceReferenceDate: 0).nextWeek
+        let date = Date(timeIntervalSinceReferenceDate: 0).nextWeek(calendar)
         XCTAssertEqual(date, Date(timeIntervalSinceReferenceDate: 60*60*24*7))
     }
     
     func test_previousWeek_shouldBe20001225() {
-        let date = Date(timeIntervalSinceReferenceDate: 0).previousWeek
+        let date = Date(timeIntervalSinceReferenceDate: 0).previousWeek(calendar)
         XCTAssertEqual(date, Date(timeIntervalSinceReferenceDate: -60*60*24*7))
     }
     
     func test_previousMonth_shouldBe20001201() {
         let offset = TimeInterval(Calendar.current.timeZone.secondsFromGMT())
-        let month = Date(timeIntervalSinceReferenceDate: 0).previousMonth
-        XCTAssertEqual(month.start, Date(timeIntervalSinceReferenceDate: -60*60*24*31 - offset))
-        XCTAssertEqual(month.end, Date(timeIntervalSinceReferenceDate: -1 - offset))
+        let month = Date(timeIntervalSinceReferenceDate: 0).previousMonth(calendar)
+        XCTAssertEqual(month.lowerBound, Date(timeIntervalSinceReferenceDate: -60*60*24*31 - offset))
+        XCTAssertEqual(month.upperBound, Date(timeIntervalSinceReferenceDate: -1 - offset))
     }
     
     func test_sameDay_shouldBeTrue() {
         XCTAssertTrue(
-            Date(timeIntervalSinceReferenceDate: 0).sameDay(as: Date(timeIntervalSinceReferenceDate: 60))
+            Date(timeIntervalSinceReferenceDate: 0)
+                .sameDay(as: Date(timeIntervalSinceReferenceDate: 60), calendar: calendar)
         )
     }
     
     func test_sameDay_shouldBeFalse() {
         XCTAssertFalse(
-            Date(timeIntervalSinceReferenceDate: 0).sameDay(as: Date(timeIntervalSinceReferenceDate: 60*60*25))
+            Date(timeIntervalSinceReferenceDate: 0)
+                .sameDay(as: Date(timeIntervalSinceReferenceDate: 60*60*25), calendar: calendar)
         )
     }
     
