@@ -90,7 +90,7 @@ class DateExtensionTest: XCTestCase {
         let offset = TimeInterval(Calendar.current.timeZone.secondsFromGMT())
         let month = Date(timeIntervalSinceReferenceDate: 0).previousMonth(calendar)
         XCTAssertEqual(month.lowerBound, Date(timeIntervalSinceReferenceDate: -60*60*24*31 - offset))
-        XCTAssertEqual(month.upperBound, Date(timeIntervalSinceReferenceDate: -1 - offset))
+        XCTAssertEqual(month.upperBound, Date(timeIntervalSinceReferenceDate: -offset))
     }
     
     func test_sameDay_shouldBeTrue() {
@@ -107,7 +107,19 @@ class DateExtensionTest: XCTestCase {
         )
     }
     
+    func test_range_containsDateShouldContainDate() {
+        let date = Date(timeIntervalSinceReferenceDate: 60*60*25) // 02.01.2001, Tuesday
+        let range = date.weekRange()
+        XCTAssertTrue(range.contains(date))
+        XCTAssertTrue(range.contains(date.weekRange().lowerBound))
+        XCTAssertFalse(range.contains(date.weekRange().upperBound))
+    }
     
+    func test_range_containsDateShouldNotContainDate() {
+        let date = Date(timeIntervalSinceReferenceDate: 60*60*25) // 02.01.2001, Tuesday
+        let range = date.weekRange()
+        XCTAssertFalse(range.contains(date.adding(weeks: 1)))
+    }
     
     // MARK: - Helper
     

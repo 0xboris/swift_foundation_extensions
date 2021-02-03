@@ -69,7 +69,7 @@ public extension Date {
         return adding(days: -7, calendar: calendar)
     }
 
-    func previousMonth(_ calendar: Calendar = .current) -> ClosedRange<Date> {
+    func previousMonth(_ calendar: Calendar = .current) -> Range<Date> {
         let start = monthRange(calendar).lowerBound
         let midPreviousMonth = start.adding(days: -15, calendar: calendar)
         return midPreviousMonth.monthRange(calendar)
@@ -140,27 +140,27 @@ public extension Date {
         return calendar.component(.weekOfYear, from: self)
     }
     
-    func range(_ calendar: Calendar = .current) -> ClosedRange<Date> {
-        startOfDay(calendar)...endOfDay(calendar)
+    func range(_ calendar: Calendar = .current) -> Range<Date> {
+        startOfDay(calendar)..<endOfDay(calendar)
     }
     
-    func weekRange(_ calendar: Calendar = .current) -> ClosedRange<Date> {
+    func weekRange(_ calendar: Calendar = .current) -> Range<Date> {
         let week = calendar.dateInterval(of: .weekOfYear, for: self)!
-        return week.start...week.end.addingTimeInterval(-1)
+        return week.start..<week.end
     }
     
-    func monthRange(_ calendar: Calendar = .current) -> ClosedRange<Date> {
+    func monthRange(_ calendar: Calendar = .current) -> Range<Date> {
         let month = calendar.dateInterval(of: .month, for: self)!
-        return month.start...month.end.addingTimeInterval(-1)
+        return month.start..<month.end
     }
 
     func month(_ calendar: Calendar = .current) -> Int {
         return calendar.component(.month, from: self)
     }
 
-    func yearRange(_ calendar: Calendar = .current) -> ClosedRange<Date> {
+    func yearRange(_ calendar: Calendar = .current) -> Range<Date> {
         let year = calendar.dateInterval(of: .year, for: self)!
-        return year.start...year.end.addingTimeInterval(-1)
+        return year.start..<year.end
     }
     
     /// Returns the last seven days, including the date itself.
@@ -247,7 +247,7 @@ public extension Date {
     }
 }
 
-public extension ClosedRange where Bound == Date {
+public extension Range where Bound == Date {
     func dates(_ calendar: Calendar = .current) -> [Date] {
         var dates = [lowerBound]
         var date = lowerBound.adding(days: 1, calendar: calendar)
