@@ -257,6 +257,16 @@ public extension Range where Bound == Date {
         }
         return dates
     }
+    
+    func weeks(_ calendar: Calendar = .current) -> [Range<Date>] {
+        var date = lowerBound
+        var ranges = [Range<Date>]()
+        while date < upperBound {
+            ranges.append(date.weekRange())
+            date = date.weekRange().lowerBound.adding(weeks: 1)
+        }
+        return ranges
+    }
 }
 
 public extension RandomAccessCollection where Element == Date {

@@ -28,10 +28,9 @@ class DateExtensionTest: XCTestCase {
         XCTAssertEqual(date.dayInMonth(calendar), 1)
     }
     
-    func test_minuesInDay_shouldBe66() {
-        let offset = Calendar.current.timeZone.secondsFromGMT() / 60
+    func test_minuesInDay_shouldBe166() {
         let date = Date(timeIntervalSinceReferenceDate: 60 * 60 + 6*60)
-        XCTAssertEqual(date.minutesInDay(calendar) - offset, 66)
+        XCTAssertEqual(date.minutesInDay(calendar), 126)
     }
     
     func test_adjustedWeekdayIndex_shouldBeOne() {
@@ -87,10 +86,9 @@ class DateExtensionTest: XCTestCase {
     }
     
     func test_previousMonth_shouldBe20001201() {
-        let offset = TimeInterval(Calendar.current.timeZone.secondsFromGMT())
         let month = Date(timeIntervalSinceReferenceDate: 0).previousMonth(calendar)
-        XCTAssertEqual(month.lowerBound, Date(timeIntervalSinceReferenceDate: -60*60*24*31 - offset))
-        XCTAssertEqual(month.upperBound, Date(timeIntervalSinceReferenceDate: -offset))
+        XCTAssertEqual(month.lowerBound, Date(with: "01.12.2000")?.startOfDay())
+        XCTAssertEqual(month.upperBound, Date(with: "01.01.2001")?.startOfDay())
     }
     
     func test_sameDay_shouldBeTrue() {
@@ -119,6 +117,32 @@ class DateExtensionTest: XCTestCase {
         let date = Date(timeIntervalSinceReferenceDate: 60*60*25) // 02.01.2001, Tuesday
         let range = date.weekRange()
         XCTAssertFalse(range.contains(date.adding(weeks: 1)))
+    }
+    
+    func test_range_weeksShouldReturnCorrectRangesForAllWeeksForJauary2001() {
+        let date = Date(timeIntervalSinceReferenceDate: 0)
+        let weeks = date.monthRange().weeks()
+        XCTAssertEqual(weeks.count, 5)
+        XCTAssertEqual(weeks.first?.lowerBound, date.startOfDay())
+        XCTAssertEqual(weeks.first?.upperBound, Date(with: "08.01.2001")?.startOfDay())
+        XCTAssertEqual(weeks[1].lowerBound, Date(with: "08.01.2001")?.startOfDay())
+        XCTAssertEqual(weeks[1].upperBound, Date(with: "15.01.2001")?.startOfDay())
+    }
+    
+    func test_range_weeksShouldReturnCorrectRangesForAllWeeksForFebruary2001() {
+        let date = Date(with: "01.02.2001")!.startOfDay()
+        let weeks = date.monthRange().weeks()
+        XCTAssertEqual(weeks.count, 5)
+        XCTAssertEqual(weeks.first?.lowerBound, Date(with: "29.01.2001")?.startOfDay())
+        XCTAssertEqual(weeks.first?.upperBound, Date(with: "05.02.2001")?.startOfDay())
+        XCTAssertEqual(weeks[1].lowerBound, Date(with: "05.02.2001")?.startOfDay())
+        XCTAssertEqual(weeks[1].upperBound, Date(with: "12.02.2001")?.startOfDay())
+        XCTAssertEqual(weeks[2].lowerBound, Date(with: "12.02.2001")?.startOfDay())
+        XCTAssertEqual(weeks[2].upperBound, Date(with: "19.02.2001")?.startOfDay())
+        XCTAssertEqual(weeks[3].lowerBound, Date(with: "19.02.2001")?.startOfDay())
+        XCTAssertEqual(weeks[3].upperBound, Date(with: "26.02.2001")?.startOfDay())
+        XCTAssertEqual(weeks[4].lowerBound, Date(with: "26.02.2001")?.startOfDay())
+        XCTAssertEqual(weeks[4].upperBound, Date(with: "05.03.2001")?.startOfDay())
     }
     
     // MARK: - Helper
