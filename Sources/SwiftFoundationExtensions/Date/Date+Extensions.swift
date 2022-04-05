@@ -267,6 +267,16 @@ public extension Range where Bound == Date {
         }
         return ranges
     }
+    
+    func months(_ calendar: Calendar) -> [Range<Date>] {
+        var date = lowerBound
+        var ranges = [Range<Date>]()
+        while date < upperBound {
+            ranges.append(date.range(of: .month, calendar: calendar))
+            date = date.range(of: .month, calendar: calendar).lowerBound.adding(months: 1, calendar: calendar)
+        }
+        return ranges
+    }
 }
 
 public extension RandomAccessCollection where Element == Date {
