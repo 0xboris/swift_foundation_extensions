@@ -272,8 +272,8 @@ public extension Range where Bound == Date {
         var date = lowerBound
         var ranges = [Range<Date>]()
         while date < upperBound {
-            ranges.append(date.range(of: .month, calendar: calendar))
-            date = date.range(of: .month, calendar: calendar).lowerBound.adding(months: 1, calendar: calendar)
+            ranges.append(date.monthRange(calendar))
+            date = date.monthRange(calendar).lowerBound.adding(months: 1, calendar: calendar)
         }
         return ranges
     }
