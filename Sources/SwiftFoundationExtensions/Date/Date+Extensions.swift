@@ -286,3 +286,133 @@ public extension RandomAccessCollection where Element == Date {
         return dates[0]..<dates[count - 1]
     }
 }
+
+public extension Int {
+    var year: Duration {
+        Duration(value: self, unit: .year)
+    }
+
+    var years: Duration {
+        year
+    }
+
+    var month: Duration {
+        Duration(value: self, unit: .month)
+    }
+
+    var months: Duration {
+        month
+    }
+
+    var week: Duration {
+        Duration(value: self, unit: .weekOfYear)
+    }
+
+    var weeks: Duration {
+        week
+    }
+
+    var day: Duration {
+        Duration(value: self, unit: .day)
+    }
+
+    var days: Duration {
+        day
+    }
+
+    var hour: Duration {
+        Duration(value: self, unit: .hour)
+    }
+
+    var hours: Duration {
+        hour
+    }
+
+    var minute: Duration {
+        Duration(value: self, unit: .minute)
+    }
+
+    var minutes: Duration {
+        minute
+    }
+
+    var second: Duration {
+        Duration(value: self, unit: .second)
+    }
+
+    var seconds: Duration {
+        second
+    }
+}
+
+public prefix func - (duration: Duration) -> (Duration) {
+    Duration(value: -duration.value, unit: duration.unit)
+}
+
+public func + (lhs: Date, rhs: Duration) -> Date {
+    rhs.calendar.dateByAdding(duration: rhs, to: lhs)!
+}
+
+public func - (lhs: Date, rhs: Duration) -> Date {
+    rhs.calendar.dateByAdding(duration: -rhs, to: lhs)!
+}
+
+public extension Calendar {
+    func dateByAdding(duration: Duration, to date: Date) -> Date? {
+        self.date(byAdding: DateComponents(duration), to: date)
+    }
+}
+
+public struct Duration {
+    public let value: Int
+    public let unit: Calendar.Component
+    public var calendar = Calendar.current
+
+    public init(value: Int, unit: Calendar.Component, timezone: TimeZone? = nil) {
+        if let timezone {
+            calendar.timeZone = timezone
+        }
+
+        self.value = value
+        self.unit = unit
+    }
+}
+
+public extension DateComponents {
+    init(_ duration: Duration) {
+        self.init()
+
+        switch duration.unit {
+        case .day:
+            day = duration.value
+        case .weekday:
+            weekday = duration.value
+        case .weekOfMonth:
+            weekOfMonth = duration.value
+        case .weekOfYear:
+            weekOfYear = duration.value
+        case .hour:
+            hour = duration.value
+        case .minute:
+            minute = duration.value
+        case .month:
+            month = duration.value
+        case .second:
+            second = duration.value
+        case .year:
+            year = duration.value
+        default:
+            () // unsupported / ignore
+        }
+    }
+}
+
+public extension TimeInterval {
+    var hour: Int {
+        Int(self / 3600)
+    }
+
+    var minute: Int {
+        Int(Int(self) % 3600 / 60)
+    }
+}
